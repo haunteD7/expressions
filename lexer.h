@@ -2,13 +2,11 @@
 
 #include <string>
 #include <cstdint>
-#include <charconv>
 #include <vector>
-#include <variant>
+#include <iostream>
 
 enum class TokenType 
 {
-  Unknown,
   Plus,
   Minus,
   Asterix,
@@ -17,27 +15,15 @@ enum class TokenType
 
   LeftParen,
   RightParen,
+  Eof,
 
   Number,
 };
-struct TokenOperator
+struct Token
 {
   TokenType type;
+  double value;
 };
-struct TokenPunctuator
-{
-  TokenType type;
-};
-struct TokenNumber 
-{
-  TokenType type = TokenType::Number;
-  std::uint64_t value;
-};
-using Token = std::variant<
-  TokenNumber,
-  TokenOperator,
-  TokenPunctuator
->;
 
 class Lexer
 {
@@ -65,38 +51,43 @@ public:
       switch (symbol)
       {
         case '+': {
-          tokens.push_back(TokenOperator({TokenType::Plus}));
+          tokens.push_back({TokenType::Plus});
           break;
         }
         case '-': {
-          tokens.push_back(TokenOperator({TokenType::Minus}));
+          tokens.push_back({TokenType::Minus});
           break;
         }
         case '*': {
-          tokens.push_back(TokenOperator({TokenType::Asterix}));
+          tokens.push_back({TokenType::Asterix});
           break;
         }
         case '/': {
-          tokens.push_back(TokenOperator({TokenType::Slash}));
+          tokens.push_back({TokenType::Slash});
           break;
         }
         case '^': {
-          tokens.push_back(TokenOperator({TokenType::Caret}));
+          tokens.push_back({TokenType::Caret});
           break;
         }
         case '(': {
-          tokens.push_back(TokenPunctuator({TokenType::LeftParen}));
+          tokens.push_back({TokenType::LeftParen});
           break;
         }
         case ')': {
-          tokens.push_back(TokenPunctuator({TokenType::RightParen}));
+          tokens.push_back({TokenType::RightParen});
+          break;
+        }
+        default: {
+          std::cerr << "Error: illegal symbol: " << symbol << "\n";
           break;
         }
       }
       ++text_pos;
     }
+    tokens.push_back({TokenType::Eof});
   }
-  TokenNumber tokenize_number() {
+  Token tokenize_number() {
     size_t text_size = text.size();
 
     size_t number_substr_start = text_pos;
@@ -105,7 +96,7 @@ public:
     }
 
     std::string_view number_substr = text.substr(number_substr_start, text_pos);
-    std::uint64_t result;
+    double result;
     std::from_chars(number_substr.data(), number_substr.data() + number_substr.size(), result);
 
     return { TokenType::Number, result };
@@ -114,27 +105,26 @@ public:
   static const char* get_token_type_str(TokenType type) {
     switch (type)
     {
-      case TokenType::Unknown:
-        return "Unknown";
       case TokenType::Plus:
-        return "Plus";
+        return "+";
       case TokenType::Minus:
-        return "Minus";
+        return "-";
       case TokenType::Asterix:
-        return "Asterix";
+        return "*";
       case TokenType::Slash:
-        return "Slash";
+        return "/";
       case TokenType::Caret:
-        return "Caret";
+        return "^";
 
       case TokenType::LeftParen:
-        return "LeftParen";
+        return "(";
       case TokenType::RightParen:
-        return "RightParen";
+        return ")";
 
       case TokenType::Number:
         return "Number";
     }
+    return "Unknown";
   }
 
   const auto& get_tokens() const { return tokens; }

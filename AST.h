@@ -1,6 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <variant>
+#include <cstdint>
+#include <cmath>
 
 enum class Operation
 {
@@ -12,9 +15,59 @@ enum class Operation
   Power,
 };
 
-struct ASTNode
+struct BinaryExpr;
+struct UnaryExpr;
+struct NumberExpr;
+using Expr = std::variant<
+  BinaryExpr,
+  UnaryExpr,
+  NumberExpr
+>;
+struct BinaryExpr
 {
-  std::shared_ptr<ASTNode> left;
-  std::shared_ptr<ASTNode> right; 
+  std::unique_ptr<Expr> left;
+  std::unique_ptr<Expr> right;
   Operation op;
 };
+struct UnaryExpr
+{
+  std::unique_ptr<Expr> expr;
+  Operation op;
+};
+struct NumberExpr
+{
+  double number;
+};
+
+static double evaluate_AST(Expr* expr) {
+  if(std::holds_alternative<BinaryExpr>(*expr)) {
+    auto& binary_expr = std::get<BinaryExpr>(*expr);
+    switch (binary_expr.op)
+    {
+      case Operation::Add:
+        return evaluate_AST(binary_expr.left.get()) + evaluate_AST(binary_expr.right.get());
+      case Operation::Substract:
+        return evaluate_AST(binary_expr.left.get()) - evaluate_AST(binary_expr.right.get());
+      case Operation::Multipy:
+        return evaluate_AST(binary_expr.left.get()) * evaluate_AST(binary_expr.right.get());
+      case Operation::Divide:
+        return evaluate_AST(binary_expr.left.get()) / evaluate_AST(binary_expr.right.get());
+      case Operation::Power:
+        return std::pow(evaluate_AST(binary_expr.left.get()), evaluate_AST(binary_expr.right.get()));
+    }
+  }
+  else if(std::holds_alternative<UnaryExpr>(*expr)) {
+    auto& unary_expr = std::get<UnaryExpr>(*expr);
+    switch (unary_expr.op)
+    {
+    case Operation::Negate:
+      return -evaluate_AST(unary_expr.expr.get());
+    }
+  }
+  else if(std::holds_alternative<NumberExpr>(*expr)) {
+    auto& number_expr = std::get<NumberExpr>(*expr);
+    return number_expr.number; 
+  }
+
+  return 0;
+}
