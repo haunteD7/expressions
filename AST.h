@@ -28,7 +28,7 @@ struct BinaryExpr
   std::unique_ptr<Expr> left;
   std::unique_ptr<Expr> right;
   Operation op;
-};
+};   
 struct UnaryExpr
 {
   std::unique_ptr<Expr> expr;

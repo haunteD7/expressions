@@ -2,14 +2,14 @@
 
 #include <stdexcept>
 
+
 #include "AST.h"
 #include "lexer.h"
 
 class Parser
 {
 public:
-  Parser(const std::vector<Token>& tokens) : tokens(tokens)
-  {
+  Parser(const std::vector<Token>& tokens) : tokens(tokens) {
     parse(); 
   }
   void parse() {
@@ -18,6 +18,9 @@ public:
   }
   double evaluate() {
     return evaluate_AST(AST.get());
+  }
+  const Expr& get_ast() const {
+    return *AST;
   }
 private:
   std::unique_ptr<Expr> parse_expression() {
@@ -98,7 +101,7 @@ private:
 
       return result;
     }
-    else throw std::runtime_error(std::format("Unexpected token: {}", Lexer::get_token_type_str(peek().type)));
+    else throw std::runtime_error("Unexpected token: " + std::string(Lexer::get_token_type_str(peek().type)));
   } 
 
   bool match(TokenType type) {
