@@ -79,7 +79,7 @@ public:
           break;
         }
         default: {
-          std::cerr << "Error: illegal symbol: " << symbol << "\n";
+          throw std::runtime_error(std::format("Illegal symbol: '{}'", symbol));
           break;
         }
       }

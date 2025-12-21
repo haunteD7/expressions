@@ -9,10 +9,11 @@ int main(int argc, char const *argv[])
   std::string input; 
   std::getline(std::cin, input);
 
-  Lexer lexer(input);
   try
   {
+    Lexer lexer(input);
     Parser parser(lexer.get_tokens());
+    double result = parser.evaluate();
 
     const Expr& ast = parser.get_ast();
 
@@ -21,7 +22,7 @@ int main(int argc, char const *argv[])
     std::cout << "Postfix:  " << to_postfix(ast) << "\n";
     std::cout << "\nExpressionTree\n";
     print_tree(ast);    
-    std::cout << "\nResult:" << parser.evaluate() << "\n";
+    std::cout << "\nResult:" << result << "\n";
   }
   catch (const std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";

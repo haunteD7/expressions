@@ -51,7 +51,11 @@ static double evaluate_AST(Expr* expr) {
       case Operation::Multipy:
         return evaluate_AST(binary_expr.left.get()) * evaluate_AST(binary_expr.right.get());
       case Operation::Divide:
-        return evaluate_AST(binary_expr.left.get()) / evaluate_AST(binary_expr.right.get());
+      {
+        double right = evaluate_AST(binary_expr.right.get());
+        if(right == 0) throw std::runtime_error("Division by zero");
+        return evaluate_AST(binary_expr.left.get()) / right;
+      }
       case Operation::Power:
         return std::pow(evaluate_AST(binary_expr.left.get()), evaluate_AST(binary_expr.right.get()));
     }

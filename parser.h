@@ -15,6 +15,7 @@ public:
   void parse() {
     token_pos = 0;
     AST = parse_expression();
+    if(!check(TokenType::Eof)) throw std::runtime_error("Unexpected expression");
   }
   double evaluate() {
     return evaluate_AST(AST.get());
@@ -31,15 +32,17 @@ private:
 
     while(true) {
       TokenType type = peek().type;
+      Operation op;
       if(type == TokenType::Plus) {
-        advance();
-        result = std::make_unique<Expr>(BinaryExpr{std::move(result), parse_term(), Operation::Add});
+        op = Operation::Add;
       }
       else if(type == TokenType::Minus) {
-        advance();
-        result = std::make_unique<Expr>(BinaryExpr{std::move(result), parse_term(), Operation::Substract});
+        op = Operation::Substract;
       }
       else break;
+
+      advance();
+      result = std::make_unique<Expr>(BinaryExpr{std::move(result), parse_term(), op});
     }
 
     return result;
@@ -94,14 +97,16 @@ private:
     }
     else if(type == TokenType::LeftParen) {
       advance();
+      if(check(TokenType::RightParen)) throw std::runtime_error("Empty parentheses");
       auto result = parse_expression();
       if(!match(TokenType::RightParen)) {
-        throw std::runtime_error("Expected )");
+        throw std::runtime_error("Expected ')'");
       }
 
       return result;
     }
-    else throw std::runtime_error("Unexpected token: " + std::string(Lexer::get_token_type_str(peek().type)));
+    else if(type == TokenType::Eof) throw std::runtime_error("Empty expression");
+    else throw std::runtime_error(std::format("Unexpected token: '{}'", std::string(Lexer::get_token_type_str(peek().type))));
   } 
 
   bool match(TokenType type) {
