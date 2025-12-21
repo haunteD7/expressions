@@ -105,7 +105,7 @@ private:
 
       return result;
     }
-    else if(type == TokenType::Eof) throw std::runtime_error("Empty expression");
+    else if(type == TokenType::Eof) throw std::runtime_error("Missing operand");
     else throw std::runtime_error(std::format("Unexpected token: '{}'", std::string(Lexer::get_token_type_str(peek().type))));
   } 
 
