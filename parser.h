@@ -80,14 +80,26 @@ private:
   std::unique_ptr<Expr> parse_power() {
     TokenType type = peek().type;
 
-    auto result = parse_primary();
+    auto result = parse_factorial();
     while(peek().type == TokenType::Caret) {
       advance();
-      result = std::make_unique<Expr>(BinaryExpr{std::move(result), parse_primary(), Operation::Power});
+      result = std::make_unique<Expr>(BinaryExpr{std::move(result), parse_factorial(), Operation::Power});
     }
   
     return result;
   }
+  std::unique_ptr<Expr> parse_factorial() {
+    auto result = parse_primary();
+
+    while (peek().type == TokenType::Exclaim) {
+      advance();
+      result = std::make_unique<Expr>(
+        UnaryExpr{std::move(result), Operation::Factorial}
+      );
+  }
+
+  return result;
+}
   std::unique_ptr<Expr> parse_primary() {
     TokenType type = peek().type;
     if(type == TokenType::Number) {

@@ -12,6 +12,7 @@ enum class TokenType
   Asterix,
   Slash,
   Caret,
+  Exclaim,
 
   LeftParen,
   RightParen,
@@ -70,6 +71,10 @@ public:
           tokens.push_back({TokenType::Caret});
           break;
         }
+        case '!': {
+          tokens.push_back({TokenType::Exclaim});
+          break;
+        }
         case '(': {
           tokens.push_back({TokenType::LeftParen});
           break;
@@ -115,6 +120,8 @@ public:
         return "/";
       case TokenType::Caret:
         return "^";
+      case TokenType::Exclaim:
+        return "!";
 
       case TokenType::LeftParen:
         return "(";

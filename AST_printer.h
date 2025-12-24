@@ -16,6 +16,7 @@ inline std::string op_to_string(Operation op) {
     case Operation::Divide:    return "/";
     case Operation::Power:     return "^";
     case Operation::Negate:    return "-";
+    case Operation::Factorial:    return "!";
   }
   return "?";
 }
@@ -30,7 +31,7 @@ inline std::string to_infix(const Expr& expr) {
 
   if (std::holds_alternative<UnaryExpr>(expr)) {
     const auto& u = std::get<UnaryExpr>(expr);
-    return "(-" + to_infix(*u.expr) + ")";
+    return "(" + op_to_string(u.op) + to_infix(*u.expr) + ")";
   }
 
   const auto& b = std::get<BinaryExpr>(expr);
@@ -51,7 +52,7 @@ inline std::string to_prefix(const Expr& expr) {
 
   if (std::holds_alternative<UnaryExpr>(expr)) {
     const auto& u = std::get<UnaryExpr>(expr);
-    return "-" + to_prefix(*u.expr);
+    return op_to_string(u.op) + to_prefix(*u.expr);
   }
 
   const auto& b = std::get<BinaryExpr>(expr);
@@ -70,7 +71,7 @@ inline std::string to_postfix(const Expr& expr) {
 
   if (std::holds_alternative<UnaryExpr>(expr)) {
     const auto& u = std::get<UnaryExpr>(expr);
-    return to_postfix(*u.expr) + " -";
+    return to_postfix(*u.expr) + op_to_string(u.op);
   }
 
   const auto& b = std::get<BinaryExpr>(expr);
@@ -112,7 +113,7 @@ inline void print_tree(const Expr& expr) {
         else if (std::holds_alternative<UnaryExpr>(e)) {
             const auto& un = std::get<UnaryExpr>(e);
             // Рисуем унарный минус
-            if (col < lines[row].length()) lines[row][col] = '-';
+            if (col < lines[row].length()) lines[row][col] = op_to_string(un.op)[0];
             // Вертикальная связь
             if (row + 1 < lines.size() && col < lines[row + 1].length()) {
                 lines[row + 1][col] = '|';

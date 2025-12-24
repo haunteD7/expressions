@@ -5,6 +5,12 @@
 #include <cstdint>
 #include <cmath>
 
+static double factorial(double v) {
+  if(v == 0) return 1;
+
+  return v * factorial(v - 1);
+}
+
 enum class Operation
 {
   Add, 
@@ -13,6 +19,7 @@ enum class Operation
   Multipy,
   Divide,
   Power,
+  Factorial,
 };
 
 struct BinaryExpr;
@@ -64,8 +71,13 @@ static double evaluate_AST(Expr* expr) {
     auto& unary_expr = std::get<UnaryExpr>(*expr);
     switch (unary_expr.op)
     {
-    case Operation::Negate:
-      return -evaluate_AST(unary_expr.expr.get());
+      case Operation::Negate:
+        return -evaluate_AST(unary_expr.expr.get());
+      case Operation::Factorial:
+        double val = evaluate_AST(unary_expr.expr.get());
+        if(val < 0) throw std::runtime_error("Negative factorial");
+
+        return factorial(val);
     }
   }
   else if(std::holds_alternative<NumberExpr>(*expr)) {
